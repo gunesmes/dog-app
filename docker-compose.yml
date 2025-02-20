@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  dog-registration:
+    build: ./dog-registration
+    ports:
+      - "8084:8084"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@dog-registration-db:5432/dog_registration
+    networks:
+      - dog-network
+    depends_on:
+      - dog-registration-db
+
+  dog-registration-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: dog_registration
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"
+
+  dog-sleep:
+    build: ./dog-sleep
+    ports:
+      - "8081:8081"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@dog-sleep-db:5432/dog_sleep
+    networks:
+      - dog-network
+    depends_on:
+      - dog-sleep-db
+
+  dog-sleep-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: dog_sleep
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+
+  dog-play:
+    build: ./dog-play
+    ports:
+      - "8082:8082"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@dog-play-db:5432/dog_play
+    networks:
+      - dog-network
+    depends_on:
+      - dog-play-db
+
+  dog-play-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: dog_play
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+
+  dog-walk:
+    build: ./dog-walk
+    ports:
+      - "8083:8083"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@dog-walk-db:5432/dog_walk
+    networks:
+      - dog-network
+    depends_on:
+      - dog-walk-db
+
+  dog-walk-db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: dog_walk
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
+
+networks:
+  dog-network:
+    driver: bridge
