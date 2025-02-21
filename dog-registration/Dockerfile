@@ -7,11 +7,11 @@ RUN go mod download
 
 COPY . .
 
-WORKDIR /app/dog-registration/cmd
+WORKDIR /app/cmd
 RUN go build -o registration_service .
 
 FROM gcr.io/distroless/base
 
-COPY --from=builder /app/dog-registration/cmd/registration_service /registration_service
+COPY --from=builder /app/cmd/registration_service /registration_service
 
 ENTRYPOINT ["/registration_service"]

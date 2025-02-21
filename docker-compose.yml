@@ -4,7 +4,7 @@ services:
   dog-registration:
     build: ./dog-registration
     ports:
-      - "8084:8084"
+      - "8084:8080"
     environment:
       - DATABASE_URL=postgres://postgres:password@dog-registration-db:5432/dog_registration
     networks:
@@ -24,7 +24,7 @@ services:
   dog-sleep:
     build: ./dog-sleep
     ports:
-      - "8081:8081"
+      - "8081:8080"
     environment:
       - DATABASE_URL=postgres://postgres:password@dog-sleep-db:5432/dog_sleep
     networks:
@@ -44,7 +44,7 @@ services:
   dog-play:
     build: ./dog-play
     ports:
-      - "8082:8082"
+      - "8082:8080"
     environment:
       - DATABASE_URL=postgres://postgres:password@dog-play-db:5432/dog_play
     networks:
@@ -64,7 +64,7 @@ services:
   dog-walk:
     build: ./dog-walk
     ports:
-      - "8083:8083"
+      - "8083:8080"
     environment:
       - DATABASE_URL=postgres://postgres:password@dog-walk-db:5432/dog_walk
     networks:

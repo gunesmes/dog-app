@@ -7,11 +7,11 @@ RUN go mod download
 
 COPY . .
 
-WORKDIR /app/dog-walk/cmd
-RUN go build -o dog-walk-service
+WORKDIR /app/cmd
+RUN go build -o /walk main.go
 
 FROM gcr.io/distroless/base
 
-COPY --from=builder /app/dog-walk/cmd/dog-walk-service /usr/local/bin/dog-walk-service
+COPY --from=builder /walk /walk
 
-ENTRYPOINT ["/usr/local/bin/dog-walk-service"]
+CMD ["/walk"]

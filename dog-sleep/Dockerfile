@@ -2,16 +2,16 @@ FROM golang:1.20 AS builder
 
 WORKDIR /app
 
-COPY go.mod ./
-COPY go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-RUN go build -o dog-sleep ./cmd/main.go
+WORKDIR /app/cmd
+RUN go build -o sleep main.go
 
 FROM gcr.io/distroless/base
 
-COPY --from=builder /app/dog-sleep /usr/local/bin/dog-sleep
+COPY --from=builder /app/cmd/sleep /sleep
 
-CMD ["dog-sleep"]
+CMD ["/sleep"]
