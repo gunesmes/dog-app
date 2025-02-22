@@ -8,10 +8,10 @@ RUN go mod download
 COPY . .
 
 WORKDIR /app/cmd
-RUN go build -o /walk main.go
+RUN go build -o walk main.go
 
 FROM gcr.io/distroless/base
 
-COPY --from=builder /walk /walk
+COPY --from=builder /app/cmd/walk /walk
 
 CMD ["/walk"]

@@ -1,21 +1,15 @@
 package main
 
 import (
-    "log"
-    "net/http"
-    "github.com/gorilla/mux"
-    "dog-play/internal/handlers"
+	"dog-play/internal/handlers"
+	"github.com/gorilla/mux"
+	"log"
+	"net/http"
 )
 
 func main() {
-    r := mux.NewRouter()
-    
-    r.HandleFunc("/play", handlers.PlayHandler).Methods("POST")
-    
-    http.Handle("/", r)
-    
-    log.Println("Starting dog-play service on port 8080...")
-    if err := http.ListenAndServe(":8080", nil); err != nil {
-        log.Fatalf("Could not start server: %s\n", err)
-    }
+	r := mux.NewRouter()
+	handlers.SetupRoutes(r)
+	log.Println("Starting dog-play service on port 8082...")
+	log.Fatal(http.ListenAndServe(":8082", r))
 }
