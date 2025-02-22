@@ -1,6 +1,18 @@
 # Dog Mobile App Microservices
 
-This project consists of a set of microservices for a Dog Mobile App, which includes services for dog sleep, play, walk, and registration. Each service is designed to handle specific functionalities related to dog activities and requires registered dogs to perform certain actions.
+This project consists of multiple microservices for a Dog Mobile App. The services include `dog-sleep`, `dog-play`, `dog-walk`, and `dog-registration`. Each service is containerized using Docker and can be orchestrated using Docker Compose.
+![Architecture](./architecture.png)
+
+## Architecture
+
+The architecture consists of the following services:
+
+- **dog-sleep**: Manages the sleeping schedule of dogs.
+- **dog-play**: Manages the play activities of dogs. It checks if a dog is registered before allowing it to play.
+- **dog-walk**: Manages the walking activities of dogs. It checks if a dog is registered before allowing it to walk.
+- **dog-registration**: Manages the registration of dogs.
+
+Each service has its own PostgreSQL database.
 
 ## Services Overview
 
