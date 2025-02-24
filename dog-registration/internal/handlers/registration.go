@@ -49,7 +49,7 @@ func GetDogByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(dog)
 }
 
-// routers setup
+// routers
 func SetupRoutes(r *mux.Router) {
 	r.HandleFunc("/register", RegisterDog).Methods("POST")
 	r.HandleFunc("/dogs", GetRegisteredDogs).Methods("GET")
