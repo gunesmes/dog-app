@@ -17,7 +17,7 @@ on:
 jobs:
   test-dog-sleep:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+    if: contains(github.event.commits[*].modified, 'dog-sleep/')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
 
   test-dog-play:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+    if: contains(github.event.commits[*].modified, 'dog-play/')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -53,7 +53,7 @@ jobs:
 
   test-dog-walk:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+    if: contains(github.event.commits[*].modified, 'dog-walk/')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -71,7 +71,7 @@ jobs:
 
   test-dog-registration:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+    if: contains(github.event.commits[*].modified, 'dog-registration/')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
