@@ -19,6 +19,7 @@ jobs:
       - name: Install dependencies
         run: go mod download
         working-directory: ./dog-registration
+
       - name: Run tests
         run: go test -v ./...
         working-directory: ./dog-registration
