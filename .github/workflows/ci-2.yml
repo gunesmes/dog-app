@@ -9,7 +9,10 @@ on:
       - main
 
 jobs:
-  call-build-test:
-    uses: ./.github/workflows/build_test.yml
-  call-performance-test:
-    uses: ./.github/workflows/performance_test.yml
+  dog-register:
+    runs-on: ubuntu-latest
+    steps:
+      - name: call-build-test
+        uses: ./.github/workflows/build_test.yml
+      - name: call-performance-test
+        uses: ./.github/workflows/performance_test.yml
