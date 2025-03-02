@@ -10,6 +10,6 @@ on:
 
 jobs:
   call-build-test:
-    uses: ./.github/workflows/dog-registration/build_test.yml
+    uses: ./.github/workflows/build_test.yml
   call-performance-test:
-    uses: ./.github/workflows/dog-registration/performance_test.yml
+    uses: ./.github/workflows/performance_test.yml
