@@ -1,28 +1,15 @@
-name: CI
+name: CI-2
 
 on:
   push:
-    paths:
-      - 'dog-sleep/**'
-      - 'dog-play/**'
-      - 'dog-walk/**'
-      - 'dog-registration/**'
+    branches:
+      - main
   pull_request:
-    paths:
-      - 'dog-sleep/**'
-      - 'dog-play/**'
-      - 'dog-walk/**'
-      - 'dog-registration/**'
+    branches:
+      - main
 
 jobs:
-  test-dog-register:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: 'Build and Test dog-sleep'
-        uses: ../../dog-registration/.github/actions/build_test@main
-      
-      - name: 'Run performance tests'
-        uses: ../../dog-registration/.github/actions/performance_test@main
+  call-build-test:
+    uses: dog-registration/.github/workflows/build_test.yml@main
+  call-performance-test:
+    uses: dog-registration/.github/workflows/performance_test.yml@main
