@@ -19,5 +19,5 @@ jobs:
 
       - name: Run performance tests
         run: | 
-            cd ../../test
+            cd ./dog-registration/test
             k6 run performance_test.js
