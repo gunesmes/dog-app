@@ -1,0 +1,22 @@
+name: 'Performance Test dog-registration'
+description: 'Run performance tests for the dog-registration service'
+
+on: [push, pull_request]
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install K6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Run performance tests
+        run: | 
+            cd ../../test
+            k6 run performance_test.js

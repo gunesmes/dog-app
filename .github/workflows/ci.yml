@@ -1,88 +1,98 @@
-name: CI
+# name: CI
 
-on:
-  push:
-    paths:
-      - 'dog-sleep/**'
-      - 'dog-play/**'
-      - 'dog-walk/**'
-      - 'dog-registration/**'
-  pull_request:
-    paths:
-      - 'dog-sleep/**'
-      - 'dog-play/**'
-      - 'dog-walk/**'
-      - 'dog-registration/**'
+# on:
+#   push:
+#     paths:
+#       - 'dog-sleep/**'
+#       - 'dog-play/**'
+#       - 'dog-walk/**'
+#       - 'dog-registration/**'
+#   pull_request:
+#     paths:
+#       - 'dog-sleep/**'
+#       - 'dog-play/**'
+#       - 'dog-walk/**'
+#       - 'dog-registration/**'
 
-jobs:
-  test-dog-sleep:
-    runs-on: ubuntu-latest
-    if: contains(github.event.commits[*].modified, 'dog-sleep/')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+# jobs:
+#   test-dog-sleep:
+#     runs-on: ubuntu-latest
+#     if: contains(github.event.commits[*].modified, 'dog-sleep/')
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.20'
+#       - name: Set up Go
+#         uses: actions/setup-go@v2
+#         with:
+#           go-version: '1.20'
 
-      - name: Install dependencies
-        run: cd dog-sleep && go mod download
+#       - name: Install dependencies
+#         run: cd dog-sleep && go mod download
 
-      - name: Run tests
-        run: cd dog-sleep && go test -v ./...
+#       - name: Run tests
+#         run: cd dog-sleep && go test -v ./...
 
-  test-dog-play:
-    runs-on: ubuntu-latest
-    if: contains(github.event.commits[*].modified, 'dog-play/')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+#   test-dog-play:
+#     runs-on: ubuntu-latest
+#     if: contains(github.event.commits[*].modified, 'dog-play/')
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.20'
+#       - name: Set up Go
+#         uses: actions/setup-go@v2
+#         with:
+#           go-version: '1.20'
 
-      - name: Install dependencies
-        run: cd dog-play && go mod download
+#       - name: Install dependencies
+#         run: cd dog-play && go mod download
 
-      - name: Run tests
-        run: cd dog-play && go test -v ./...
+#       - name: Run tests
+#         run: cd dog-play && go test -v ./...
 
-  test-dog-walk:
-    runs-on: ubuntu-latest
-    if: contains(github.event.commits[*].modified, 'dog-walk/')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+#   test-dog-walk:
+#     runs-on: ubuntu-latest
+#     if: contains(github.event.commits[*].modified, 'dog-walk/')
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.20'
+#       - name: Set up Go
+#         uses: actions/setup-go@v2
+#         with:
+#           go-version: '1.20'
 
-      - name: Install dependencies
-        run: cd dog-walk && go mod download
+#       - name: Install dependencies
+#         run: cd dog-walk && go mod download
 
-      - name: Run tests
-        run: cd dog-walk && go test -v ./...
+#       - name: Run tests
+#         run: cd dog-walk && go test -v ./...
 
-  test-dog-registration:
-    runs-on: ubuntu-latest
-    if: contains(github.event.commits[*].modified, 'dog-registration/')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+#   test-dog-registration:
+#     runs-on: ubuntu-latest
+#     if: contains(github.event.commits[*].modified, 'dog-registration/')
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.20'
+#       - name: Set up Go
+#         uses: actions/setup-go@v2
+#         with:
+#           go-version: '1.20'
 
-      - name: Install dependencies
-        run: cd dog-registration && go mod download
+#       - name: Install dependencies
+#         run: cd dog-registration && go mod download
 
-      - name: Run tests
-        run: cd dog-registration && go test -v ./...
+#       - name: Run Unit Tests
+#         run: cd dog-registration && go test -v ./...
+      
+#       - name: Install K6
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y k6
+
+#       - name: Run performance tests
+#         run: |
+#           cd dog-registration/test
+#           k6 run performance_test.js

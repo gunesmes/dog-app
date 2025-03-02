@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - 'dog-sleep/**'
+      - 'dog-play/**'
+      - 'dog-walk/**'
+      - 'dog-registration/**'
+  pull_request:
+    paths:
+      - 'dog-sleep/**'
+      - 'dog-play/**'
+      - 'dog-walk/**'
+      - 'dog-registration/**'
+
+jobs:
+  test-dog-register:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: 'Build and Test dog-sleep'
+        uses: ../../dog-registration/.github/actions/build_test@main
+      
+      - name: 'Run performance tests'
+        uses: ../../dog-registration/.github/actions/performance_test@main
