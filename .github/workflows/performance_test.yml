@@ -15,9 +15,13 @@ jobs:
       - name: Install K6
         run: |
           sudo apt-get update
+          sudo apt-get install -y gnupg software-properties-common
+          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 33D40BC6
+          echo "deb https://dl.bintray.com/loadimpact/deb stable main" | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update
           sudo apt-get install -y k6
 
       - name: Run performance tests
-        run: | 
-            cd ./dog-registration/test
-            k6 run performance_test.js
+        run: |
+          cd ./dog-registration/test
+          k6 run performance_test.js
