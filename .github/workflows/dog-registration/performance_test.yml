@@ -1,7 +1,8 @@
 name: 'Performance Test dog-registration'
 description: 'Run performance tests for the dog-registration service'
 
-on: [push, pull_request]
+on:
+  workflow_call:
 
 jobs:
   performance-test:
