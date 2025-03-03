@@ -10,6 +10,23 @@ on:
 
 jobs:
   call-build-test:
-    uses: ./.github/workflows/build_test.yml
-  # call-performace-test:
-  #   uses: ./.github/workflows/performance_test.yml
+    name: 'Unit Test dog-registration'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/build_test.yml
+  
+  run-services:
+    name: 'Run Services'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Compose
+        run: docker-compose up -d
+
+  call-performace-test:
+    name: 'Performance Test dog-registration'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/performance_test.yml
