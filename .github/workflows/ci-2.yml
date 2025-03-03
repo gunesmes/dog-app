@@ -10,7 +10,7 @@ on:
 
 jobs:
   get-runner:
-    name: get a runner to use for this workflow
+    name: 'Get Runner - dogapp - dog-registration'
     if: ${{ always() }}
     runs-on: custom-runner
     outputs:
