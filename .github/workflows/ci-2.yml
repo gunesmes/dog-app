@@ -32,6 +32,7 @@ jobs:
   run-services:
     name: 'Run Services'
     runs-on: ubuntu-latest
+    needs: call-build-test
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -43,11 +44,21 @@ jobs:
           docker-compose --version
 
       - name: Set up Docker Compose
-        run: docker-compose up -d
+        run: |
+          docker-compose up -d
+      
+      - name: Wait for service to be ready
+        run: |
+          while ! curl -sSf http://localhost:8084/health; do
+            echo "Waiting for service to be ready..."
+            sleep 5
+          done
+        working-directory: ./dog-registration
 
   call-performace-test:
     name: 'Performance Test dog-registration'
     runs-on: ubuntu-latest
+    needs: run-services
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
