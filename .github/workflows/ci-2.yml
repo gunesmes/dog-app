@@ -9,9 +9,19 @@ on:
       - main
 
 jobs:
+  get-runner:
+    name: get a runner to use for this workflow
+    if: ${{ always() }}
+    runs-on: custom-runner
+    outputs:
+     RUNNER: ${{ runner.name }}
+    steps:
+      - run: echo "selected runner = ${{ runner.name }}"
+
   call-build-test:
     name: 'Unit Test dog-registration'
-    runs-on: ubuntu-latest
+    needs: get-runner
+    runs-on: ${{needs.get-runner.outputs.RUNNER}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -31,8 +41,8 @@ jobs:
   
   run-services:
     name: 'Run Services'
-    runs-on: ubuntu-latest
-    needs: call-build-test
+    needs: [get-runner, call-build-test]
+    runs-on: ${{needs.get-runner.outputs.RUNNER}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -54,11 +64,16 @@ jobs:
             sleep 5
           done
         working-directory: ./dog-registration
+      
+      - name: Run performance tests
+        run: |
+          cd ./dog-registration/test
+          k6 run performance_test.js
 
   call-performace-test:
     name: 'Performance Test dog-registration'
-    runs-on: ubuntu-latest
-    needs: run-services
+    needs: [get-runner, call-build-test, run-services]
+    runs-on: ${{needs.get-runner.outputs.RUNNER}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
