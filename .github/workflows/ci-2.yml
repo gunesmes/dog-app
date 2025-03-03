@@ -49,7 +49,7 @@ jobs:
       
       - name: Wait for service to be ready
         run: |
-          while ! curl -sSf http://localhost:8084/health; do
+          while ! curl -sSf http://localhost:8084/dogs; do
             echo "Waiting for service to be ready..."
             sleep 5
           done
