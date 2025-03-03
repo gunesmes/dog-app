@@ -29,8 +29,16 @@ jobs:
         run: go test -v ./...
         working-directory: ./dog-registration
   
+  contract-test:
+    name: 'Contract Test dog-registration'
+    runs-on: ubuntu-latest
+    needs: call-build-test
+    steps:
+      - name: Sleep for now
+        run: sleep 2
+  
   run-services:
-    name: 'Run Services'
+    name: 'Performance Test dog-registration'
     runs-on: ubuntu-latest
     needs: call-build-test
     steps:
