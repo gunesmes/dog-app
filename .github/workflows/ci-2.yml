@@ -13,7 +13,21 @@ jobs:
     name: 'Unit Test dog-registration'
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/build_test.yml
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.20'
+
+      - name: Install dependencies
+        run: go mod download
+        working-directory: ./dog-registration
+
+      - name: Run tests
+        run: go test -v ./...
+        working-directory: ./dog-registration
   
   run-services:
     name: 'Run Services'
@@ -22,6 +36,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
       - name: Set up Docker Compose
         run: docker-compose up -d
 
@@ -29,4 +49,17 @@ jobs:
     name: 'Performance Test dog-registration'
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/performance_test.yml
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install K6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+      - name: Run performance tests
+        run: |
+          cd ./dog-registration/test
+          k6 run performance_test.js

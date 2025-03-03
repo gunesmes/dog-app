@@ -1,7 +1,7 @@
 name: Build and Test
+description: 'Build and test the dog-registration service'
 
-on:
-  workflow_call:
+on: [push, pull_request]
 
 jobs:
   build:
