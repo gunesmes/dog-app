@@ -1,4 +1,4 @@
-name: CI-2
+name: 'CI - dog-registration'
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   call-build-test:
-    name: 'Unit Test dog-registration'
+    name: 'Unit Test - registration'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -30,15 +30,15 @@ jobs:
         working-directory: ./dog-registration
   
   contract-test:
-    name: 'Contract Test dog-registration'
+    name: 'Contract Test - registration'
     runs-on: ubuntu-latest
     needs: call-build-test
     steps:
       - name: Sleep for now
         run: sleep 2
   
-  run-performance-test:
-    name: 'Performance Test dog-registration'
+  performance-test:
+    name: 'Performance Test - registration'
     runs-on: ubuntu-latest
     needs: [call-build-test, contract-test]
     steps:
@@ -74,3 +74,11 @@ jobs:
         run: |
           cd ./dog-registration/test
           k6 run performance_test.js
+
+  deploy:
+    name: 'Deploy - registration'
+    runs-on: ubuntu-latest
+    needs: [call-build-test, contract-test, performance-test]
+    steps:
+      - name: Sleep for now
+        run: sleep 2
