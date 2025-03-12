@@ -7,9 +7,9 @@ export let options = {
     duration: '30s', // duration of the test
     thresholds: {
         http_req_duration: [
-            'avg<25', // average response time must be below 25ms
-            'p(90)<35', // 90% of requests must complete below 35ms
-            'p(95)<50', // 95% of requests must complete below 50ms
+            'avg<20', // average response time must be below 25ms
+            'p(90)<30', // 90% of requests must complete below 35ms
+            'p(95)<40', // 95% of requests must complete below 50ms
             'max<50' // max response time must be below 50ms
         ], 
         http_req_failed: [
