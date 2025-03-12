@@ -3,14 +3,14 @@ import http from 'k6/http';
 
 
 export let options = {
-    vus: 25, // number of virtual users
+    vus: 250, // number of virtual users
     duration: '30s', // duration of the test
     thresholds: {
         http_req_duration: [
-            'avg<20', // average response time must be below 25ms
-            'p(90)<30', // 90% of requests must complete below 35ms
-            'p(95)<40', // 95% of requests must complete below 50ms
-            'max<50' // max response time must be below 50ms
+            'avg<2', // average response time must be below 25ms
+            'p(90)<3', // 90% of requests must complete below 35ms
+            'p(95)<4', // 95% of requests must complete below 50ms
+            'max<5' // max response time must be below 50ms
         ], 
         http_req_failed: [
             'rate<0.01' // http request failures should be less than 1%
