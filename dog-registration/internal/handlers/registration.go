@@ -3,17 +3,24 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"sync"
 
 	"github.com/gorilla/mux"
 )
 
 type Dog struct {
-	ID    string `json:"id"`
+	ID    int    `json:"id"`
 	Name  string `json:"name"`
 	Breed string `json:"breed"`
+	Age   int    `json:"age"`
 }
 
-var registeredDogs = make(map[string]Dog)
+var (
+	registeredDogs = make(map[int]Dog)
+	mu             sync.Mutex
+	counter        int
+)
 
 func RegisterDog(w http.ResponseWriter, r *http.Request) {
 	var dog Dog
@@ -23,29 +30,74 @@ func RegisterDog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	mu.Lock()
+	defer mu.Unlock()
+
+	// Generate a unique ID for the new dog
+	counter++
+	dog.ID = counter
+
+	if _, exists := registeredDogs[dog.ID]; exists {
+		http.Error(w, "dog is already registered", http.StatusConflict)
+		return
+	}
+
 	registeredDogs[dog.ID] = dog
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(dog)
 }
 
 func GetRegisteredDogs(w http.ResponseWriter, r *http.Request) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	dogs := make([]Dog, 0, len(registeredDogs))
 	for _, dog := range registeredDogs {
 		dogs = append(dogs, dog)
 	}
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(dogs)
 }
 
 func GetDogByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	dogID := vars["id"]
-
-	dog, exists := registeredDogs[dogID]
-	if !exists {
-		http.Error(w, "Dog not found", http.StatusNotFound)
+	dogID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "invalid dog ID", http.StatusBadRequest)
 		return
 	}
 
+	mu.Lock()
+	defer mu.Unlock()
+
+	dog, exists := registeredDogs[dogID]
+	if !exists {
+		http.Error(w, "dog not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(dog)
+}
+
+func GetDog(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	dogID, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, "invalid dog ID", http.StatusBadRequest)
+		return
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	dog, exists := registeredDogs[dogID]
+	if !exists {
+		http.Error(w, "dog not found", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(dog)
 }
 
