@@ -15,7 +15,7 @@ func TestRegisterDog(t *testing.T) {
 	router := mux.NewRouter()
 	router.HandleFunc("/register", RegisterDog).Methods("POST")
 
-	dog := Dog{ID: "1", Name: "Buddy", Breed: "Golden Retriever"}
+	dog := Dog{Name: "Buddy", Breed: "Golden Retriever"}
 	dogJSON, _ := json.Marshal(dog)
 
 	req, _ := http.NewRequest("POST", "/register", bytes.NewBuffer(dogJSON))
@@ -26,14 +26,19 @@ func TestRegisterDog(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, rr.Code)
 	var registeredDog Dog
 	json.Unmarshal(rr.Body.Bytes(), &registeredDog)
-	assert.Equal(t, dog, registeredDog)
+	assert.Equal(t, "Buddy", registeredDog.Name)
+	assert.Equal(t, "Golden Retriever", registeredDog.Breed)
+	assert.NotEqual(t, 0, registeredDog.ID) // Check that the ID is set and is not zero
 }
 
 func TestGetRegisteredDogs(t *testing.T) {
 	router := mux.NewRouter()
 	router.HandleFunc("/dogs", GetRegisteredDogs).Methods("GET")
 
-	registeredDogs["1"] = Dog{ID: "1", Name: "Buddy", Breed: "Golden Retriever"}
+	// Register a dog for testing
+	mu.Lock()
+	registeredDogs[1] = Dog{ID: 1, Name: "Buddy", Breed: "Golden Retriever"}
+	mu.Unlock()
 
 	req, _ := http.NewRequest("GET", "/dogs", nil)
 	rr := httptest.NewRecorder()
@@ -50,7 +55,10 @@ func TestGetDogByID(t *testing.T) {
 	router := mux.NewRouter()
 	router.HandleFunc("/dogs/{id}", GetDogByID).Methods("GET")
 
-	registeredDogs["1"] = Dog{ID: "1", Name: "Buddy", Breed: "Golden Retriever"}
+	// Register a dog for testing
+	mu.Lock()
+	registeredDogs[1] = Dog{ID: 1, Name: "Buddy", Breed: "Golden Retriever"}
+	mu.Unlock()
 
 	req, _ := http.NewRequest("GET", "/dogs/1", nil)
 	rr := httptest.NewRecorder()
