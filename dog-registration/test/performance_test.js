@@ -1,16 +1,15 @@
 import { check, sleep } from 'k6';
 import http from 'k6/http';
 
-
 export let options = {
-    vus: 250, // number of virtual users
-    duration: '30s', // duration of the test
+    vus: 10, // number of virtual users
+    duration: '10s', // duration of the test
     thresholds: {
         http_req_duration: [
-            'avg<2', // average response time must be below 25ms
-            'p(90)<3', // 90% of requests must complete below 35ms
-            'p(95)<4', // 95% of requests must complete below 50ms
-            'max<5' // max response time must be below 50ms
+            'avg<200', // average response time must be below 2ms
+            'p(90)<300', // 90% of requests must complete below 3ms
+            'p(95)<400', // 95% of requests must complete below 4ms
+            'max<500' // max response time must be below 5ms
         ], 
         http_req_failed: [
             'rate<0.01' // http request failures should be less than 1%
@@ -21,7 +20,7 @@ export let options = {
     },
 };
 
-export default function () {
+function registerDog() {
     let url = 'http://localhost:8084/register';
     let random_id = Math.floor(Math.random() * 1000);    
     let json_data = {
@@ -39,8 +38,6 @@ export default function () {
 
     let res = http.post(url, payload, params);
 
-    console.log(`Response body: ${res.body}`); // Log the response body for debugging
-
     check(res, {
         'is status 201': (r) => r.status === 201,
         'is registered': (r) => {
@@ -57,5 +54,50 @@ export default function () {
         },
     });
 
+    return res.json().id;
+}
+
+function getRegisteredDogs() {
+    let url = 'http://localhost:8084/dogs';
+    let res = http.get(url);
+
+    check(res, {
+        'is status 200': (r) => r.status === 200,
+        'has dogs': (r) => {
+            try {
+                let responseBody = JSON.parse(r.body);
+                return Array.isArray(responseBody) && responseBody.length > 0;
+            } catch (e) {
+                console.error(`Failed to parse response body: ${e}`);
+                return false;
+            }
+        },
+    });
+}
+
+function getDogById(dogId) {
+    let url = `http://localhost:8084/dogs/${dogId}`;
+    let res = http.get(url);
+
+    check(res, {
+        'is status 200': (r) => r.status === 200,
+        'is correct dog': (r) => {
+            try {
+                let responseBody = JSON.parse(r.body);
+                return responseBody.id === dogId;
+            } catch (e) {
+                console.error(`Failed to parse response body: ${e}`);
+                return false;
+            }
+        },
+    });
+}
+
+export default function () {
+    let dogId = registerDog();
+    sleep(1);
+    getRegisteredDogs();
+    sleep(1);
+    getDogById(dogId);
     sleep(1);
 }

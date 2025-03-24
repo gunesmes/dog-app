@@ -61,7 +61,9 @@ func GetRegisteredDogs(w http.ResponseWriter, r *http.Request) {
 
 func GetDogByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	dogID, err := strconv.Atoi(vars["id"])
+	dogID, err := strconv.Atoi(vars["dogID"])
+	println(dogID)
+	println(err)
 	if err != nil {
 		http.Error(w, "invalid dog ID", http.StatusBadRequest)
 		return
@@ -71,27 +73,7 @@ func GetDogByID(w http.ResponseWriter, r *http.Request) {
 	defer mu.Unlock()
 
 	dog, exists := registeredDogs[dogID]
-	if !exists {
-		http.Error(w, "dog not found", http.StatusNotFound)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(dog)
-}
-
-func GetDog(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	dogID, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		http.Error(w, "invalid dog ID", http.StatusBadRequest)
-		return
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-
-	dog, exists := registeredDogs[dogID]
+	println(dog.Name)
 	if !exists {
 		http.Error(w, "dog not found", http.StatusNotFound)
 		return
