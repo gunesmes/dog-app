@@ -76,10 +76,11 @@ jobs:
           bash run_performance_test.sh
       
       - name: Upload performance test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-test-results
-          path: summary.csv
+          path: ./dog-registration/test/summary.csv
+          compression-level: 9
               
   deploy:
     name: 'Deploy - registration'
