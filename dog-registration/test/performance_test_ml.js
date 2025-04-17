@@ -35,7 +35,7 @@ function registerDog() {
                     && responseBody.breed === json_data.breed
                     && responseBody.age === json_data.age;
             } catch (e) {
-                console.error(`Failed to parse response body: ${e}`);
+                console.error(`registerDog: Failed to parse response body: ${e}, response: ${r.body}`);
                 return false;
             }
         },
@@ -55,7 +55,7 @@ function getRegisteredDogs() {
                 let responseBody = JSON.parse(r.body);
                 return Array.isArray(responseBody) && responseBody.length > 0;
             } catch (e) {
-                console.error(`Failed to parse response body: ${e}`);
+                console.error(`getRegisteredDogs: Failed to parse response body: ${e}, response: ${r.body}`);
                 return false;
             }
         },
@@ -73,7 +73,7 @@ function getDogById(dogId) {
                 let responseBody = JSON.parse(r.body);
                 return responseBody.id === dogId;
             } catch (e) {
-                console.error(`Failed to parse response body: ${e}`);
+                console.error(`getDogById: Failed to parse response body: ${e}, response: ${r.body}`);
                 return false;
             }
         },
