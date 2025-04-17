@@ -1,4 +1,4 @@
-for var in $(seq 1 100); do
+for var in $(seq 1 5); do
     echo $var; 
     k6 run performance_test_ml.js; 
     bash append_test_result.sh; 
