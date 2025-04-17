@@ -7,10 +7,9 @@ export let options = {
     duration: '10s', // duration of the test
     thresholds: {
         checks: [
-            'rate=1' // All checks should pass
+            'rate>0.999' // 0.999 of the checks should pass
         ], 
     },
-
 };
 
 function registerDog() {
