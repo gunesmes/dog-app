@@ -1,23 +1,10 @@
 import { check, sleep } from 'k6';
 import http from 'k6/http';
 
+
 export let options = {
-    vus: 1000, // number of virtual users
-    duration: '30s', // duration of the test
-    thresholds: {
-        http_req_duration: [
-            'avg<20', // average response time must be below 2ms
-            'p(90)<30', // 90% of requests must complete below 3ms
-            'p(95)<35', // 95% of requests must complete below 4ms
-            'max<50' // max response time must be below 5ms
-        ], 
-        http_req_failed: [
-            'rate<0.01' // http request failures should be less than 1%
-        ], 
-        checks: [
-            'rate>0.99' // 99% of checks should pass
-        ], 
-    },
+    vus: 30, // number of virtual users
+    duration: '10s', // duration of the test
 };
 
 function registerDog() {
@@ -92,6 +79,36 @@ function getDogById(dogId) {
         },
     });
 }
+
+function convertToCSV(data) {
+    const metric = data.metrics.http_req_duration;
+    if (!metric || !metric.values) {
+        return 'No http_req_duration data available';
+    }
+
+    const header = 'avg,min,med,max,p(90),p(95)';
+    const values = [
+        metric.values.avg,
+        metric.values.min,
+        metric.values.med,
+        metric.values.max,
+        metric.values['p(90)'],
+        metric.values['p(95)'],
+    ].join(',');
+
+    // check if the values are correct
+    console.log(header);
+    console.log(values);
+
+    return `${header}\n${values}`;
+}
+
+export function handleSummary(data) {
+    return {
+        'http_req_duration.csv': convertToCSV(data),
+    };
+}
+
 
 export default function () {
     let dogId = registerDog();

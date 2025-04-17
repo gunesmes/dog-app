@@ -23,3 +23,8 @@ jobs:
         run: |
           cd ./dog-registration/test
           k6 run performance_test.js
+      - name: Upload performance test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-test-results
+          path: summary.csv
