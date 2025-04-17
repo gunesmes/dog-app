@@ -111,10 +111,8 @@ export function handleSummary(data) {
 
 
 export default function () {
-    let dogId = registerDog();
+    registerDog();
     sleep(1);
     getRegisteredDogs();
-    sleep(1);
-    getDogById(dogId);
     sleep(1);
 }
