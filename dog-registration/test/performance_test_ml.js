@@ -3,8 +3,14 @@ import http from 'k6/http';
 
 
 export let options = {
-    vus: 30, // number of virtual users
+    vus: 100, // number of virtual users
     duration: '10s', // duration of the test
+    thresholds: {
+        checks: [
+            'rate=1' // All checks should pass
+        ], 
+    },
+
 };
 
 function registerDog() {
