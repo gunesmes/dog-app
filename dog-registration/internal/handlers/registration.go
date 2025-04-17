@@ -61,7 +61,7 @@ func GetRegisteredDogs(w http.ResponseWriter, r *http.Request) {
 
 func GetDogByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	dogID, err := strconv.Atoi(vars["dogID"])
+	dogID, err := strconv.Atoi(vars["id"])
 	println(dogID)
 	println(err)
 	if err != nil {
