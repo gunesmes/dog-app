@@ -85,6 +85,25 @@ function getDogById(dogId) {
     });
 }
 
+function deleteDogs() {
+    let url = 'http://localhost:8084/dogs';
+    let res = http.del(url);
+
+    check(res, {
+        'is status 200': (r) => r.status === 200,
+        'is deleted': (r) => {
+            try {
+                let responseBody = r.body;
+                console.log(`deleteDogs: responseBody: ${responseBody}`);
+                return responseBody === 'All dogs deleted';
+            } catch (e) {
+                console.error(`deleteDogs: Failed to parse response body: ${e}, response: ${r.body}`);
+                return false;
+            }
+        },
+    });
+}
+
 function convertToCSV(data) {
     const metric = data.metrics.http_req_duration;
     if (!metric || !metric.values) {
@@ -114,6 +133,9 @@ export function handleSummary(data) {
     };
 }
 
+export function teardown(data) {
+    deleteDogs();
+}
 
 export default function () {
     registerDog();

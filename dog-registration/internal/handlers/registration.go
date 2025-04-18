@@ -62,8 +62,6 @@ func GetRegisteredDogs(w http.ResponseWriter, r *http.Request) {
 func GetDogByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	dogID, err := strconv.Atoi(vars["id"])
-	println(dogID)
-	println(err)
 	if err != nil {
 		http.Error(w, "invalid dog ID", http.StatusBadRequest)
 		return
@@ -73,7 +71,6 @@ func GetDogByID(w http.ResponseWriter, r *http.Request) {
 	defer mu.Unlock()
 
 	dog, exists := registeredDogs[dogID]
-	println(dog.Name)
 	if !exists {
 		http.Error(w, "dog not found", http.StatusNotFound)
 		return
@@ -83,9 +80,23 @@ func GetDogByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(dog)
 }
 
+func DeleteAllDogs(w http.ResponseWriter, r *http.Request) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	// Iterate over the map and delete each entry
+	for id := range registeredDogs {
+		delete(registeredDogs, id)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("All dogs deleted"))
+}
+
 // routers setup
 func SetupRoutes(r *mux.Router) {
 	r.HandleFunc("/register", RegisterDog).Methods("POST")
 	r.HandleFunc("/dogs", GetRegisteredDogs).Methods("GET")
 	r.HandleFunc("/dogs/{id}", GetDogByID).Methods("GET")
+	r.HandleFunc("/dogs", DeleteAllDogs).Methods("DELETE")
 }
