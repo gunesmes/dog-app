@@ -107,17 +107,7 @@ jobs:
         with:
           name: performance-results
           path: ./dog-registration/test/
-      
-      - name: Unzip test results
-        run: |
-          ls -lrt /home/runner/work/dog-app/dog-app/dog-registration/test
-          pwd
-          ls -lrt
-          cd ./dog-registration/test
-          pwd
-          ls -lrt
-          tar -xvf performance-results.zip .
-      
+                
       - name: Analyze anomaly
         run: |
           python3.10 analyze_anomaly_with_ml.py
