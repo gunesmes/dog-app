@@ -44,8 +44,8 @@ def analyze_trend_with_current_results(historical_csv, current_csv, metrics=None
         X = np.arange(len(historical_df)).reshape(-1, 1)
         y = historical_df[metric].values
         
-        # Define kernel - RBF is good for smooth trends
-        kernel = C(1.0) * RBF(length_scale=1.0)
+        # To this (with boundaries that allow smaller values):
+        kernel = C(1.0, (1e-3, 1e3)) * RBF(length_scale=1.0, length_scale_bounds=(1e-7, 1e3))
         
         # Create and fit model
         gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10)
@@ -58,8 +58,24 @@ def analyze_trend_with_current_results(historical_csv, current_csv, metrics=None
         current_point = np.array([[len(historical_df)]])
         prediction, std = gp.predict(current_point, return_std=True)
         
-        # Determine if current value is within confidence interval
-        confidence_interval = [prediction[0] - 2*std[0], prediction[0] + 2*std[0]]
+        # Calculate a realistic lower bound based on historical data
+        historical_min = np.min(y)
+        historical_mean = np.mean(y)
+        historical_std = np.std(y)
+        
+        # Use 80% of historical minimum as an absolute floor
+        absolute_floor = max(0, historical_min * 0.8)
+        
+        # For values near zero, scale the lower bound proportionally
+        if prediction[0] < historical_mean * 0.5:
+            # Use a proportional approach for lower bound
+            lower_bound = max(absolute_floor, prediction[0] * 0.5)
+        else:
+            # Use standard approach but don't go below the floor
+            lower_bound = max(absolute_floor, prediction[0] - 2*std[0])
+        
+        # Determine confidence interval with realistic lower bound
+        confidence_interval = [lower_bound, prediction[0] + 2*std[0]]
         is_within_ci = confidence_interval[0] <= current_value <= confidence_interval[1]
         
         # Calculate percent difference
@@ -75,7 +91,12 @@ def analyze_trend_with_current_results(historical_csv, current_csv, metrics=None
             "uncertainty": std[0],
             "confidence_interval": confidence_interval,
             "is_within_confidence_interval": is_within_ci,
-            "percent_difference": percent_diff
+            "percent_difference": percent_diff,
+            "historical_stats": {
+                "min": historical_min,
+                "mean": historical_mean,
+                "std": historical_std
+            }
         }
         
     return results
@@ -92,6 +113,7 @@ def print_analysis_results(results):
         print(f"  Actual value: {data['actual_value']:.2f}")
         print(f"  Difference: {data['actual_value'] - data['predicted_value']:.2f} ({data['percent_difference']:.2f}%)")
         print(f"  Confidence interval: [{data['confidence_interval'][0]:.2f}, {data['confidence_interval'][1]:.2f}]")
+        print(f"  Historical min/mean/std: {data['historical_stats']['min']:.2f}/{data['historical_stats']['mean']:.2f}/{data['historical_stats']['std']:.2f}")
         print(f"  Within confidence interval: {'✅' if data['is_within_confidence_interval'] else '❌'}")
         print()
             
@@ -117,8 +139,14 @@ def plot_trend_with_current(historical_csv, current_csv, metric):
     X = np.arange(len(historical_df)).reshape(-1, 1)
     y = historical_df[metric].values
     
+    # Calculate important historical statistics
+    historical_min = np.min(y)
+    historical_mean = np.mean(y)
+    historical_std = np.std(y)
+    absolute_floor = max(0, historical_min * 0.8)
+    
     # Fit model
-    kernel = C(1.0) * RBF(length_scale=1.0)
+    kernel = C(1.0, (1e-3, 1e3)) * RBF(length_scale=1.0, length_scale_bounds=(1e-7, 1e3))    
     gp = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10)
     gp.fit(X, y)
     
@@ -126,20 +154,56 @@ def plot_trend_with_current(historical_csv, current_csv, metric):
     x_pred = np.linspace(0, len(historical_df) + 1, 100).reshape(-1, 1)
     y_pred, y_std = gp.predict(x_pred, return_std=True)
     
+    # Calculate adaptive lower bounds
+    lower_bounds = np.zeros_like(y_pred)
+    for i, (pred, std_val) in enumerate(zip(y_pred, y_std)):
+        if pred < historical_mean * 0.5:
+            # Use proportional approach
+            lower_bounds[i] = max(absolute_floor, pred * 0.5)
+        else:
+            # Use standard approach with floor
+            lower_bounds[i] = max(absolute_floor, pred - 2*std_val)
+    
     # Get current value
     current_value = current_df[metric].iloc[0]
     
     # Current point is the next point after historical data
     current_x = len(historical_df)
     
-    # Plot
+    # Predict for current point to get confidence interval
+    current_pred, current_std = gp.predict(np.array([[current_x]]), return_std=True)
+    
+    # Determine if current value is within confidence interval
+    if current_pred[0] < historical_mean * 0.5:
+        current_lower_bound = max(absolute_floor, current_pred[0] * 0.5)
+    else:
+        current_lower_bound = max(absolute_floor, current_pred[0] - 2*current_std[0])
+    
+    current_ci = [current_lower_bound, current_pred[0] + 2*current_std[0]]
+    is_within_ci = current_ci[0] <= current_value <= current_ci[1]
+    
+    # Create figure
     plt.figure(figsize=(12, 6))
+    
+    # Plot historical data
     plt.plot(np.arange(len(historical_df)), historical_df[metric], 'ko', label='Historical Data')
-    plt.plot(current_x, current_value, 'ro', markersize=10, label='Current Test')
+    
+    # Plot current test with appropriate color
+    if is_within_ci:
+        plt.plot(current_x, current_value, 'go', markersize=10, label='Current Test (Within CI)')
+    else:
+        plt.plot(current_x, current_value, 'ro', markersize=10, label='Current Test (Outside CI)')
+    
+    # Plot prediction line
     plt.plot(x_pred, y_pred, 'b-', label='Predicted Trend')
-    plt.plot(x_pred, y_pred + 2*y_std, 'b--', label='Confidence Interval')
+    
+    # Plot confidence intervals
+    plt.plot(x_pred, y_pred + 2*y_std, 'b--', label='Upper CI')
+    plt.plot(x_pred, lower_bounds, 'b--', alpha=0.5, label='Lower CI')
+    
+    # Fill between confidence intervals
     plt.fill_between(x_pred.ravel(), 
-                    y_pred - 2*y_std, 
+                    lower_bounds,
                     y_pred + 2*y_std, 
                     alpha=0.2, 
                     color='blue', 
@@ -174,12 +238,43 @@ def plot_trend_with_current(historical_csv, current_csv, metric):
                 ha='center',
                 fontsize=8)
     
+    # Add confidence interval info box
+    info_text = f"Predicted: {current_pred[0]:.2f}\nActual: {current_value:.2f}\nCI: [{current_ci[0]:.2f}, {current_ci[1]:.2f}]"
+    plt.text(0.98, 0.85, info_text,
+             transform=plt.gca().transAxes,
+             fontsize=10,
+             horizontalalignment='right',
+             verticalalignment='top',
+             bbox=dict(facecolor='white', alpha=0.7, pad=5, boxstyle='round'))
+    
+    # Add status text box
+    if is_within_ci:
+        status_text = "✅ WITHIN CONFIDENCE INTERVAL"
+        box_color = 'lightgreen'
+        text_color = 'darkgreen'
+    else:
+        status_text = "❌ OUTSIDE CONFIDENCE INTERVAL"
+        box_color = 'lightcoral'
+        text_color = 'darkred'
+    
+    plt.text(0.98, 0.95, status_text, 
+             transform=plt.gca().transAxes, 
+             fontsize=12, 
+             weight='bold',
+             color=text_color,
+             horizontalalignment='right',
+             verticalalignment='top',
+             bbox=dict(facecolor=box_color, alpha=0.5, pad=10, boxstyle='round'))
+    
+    # Make directory if it doesn't exist
+    os.makedirs('performance_results', exist_ok=True)
+    
     plt.savefig(f'performance_results/trend_analysis_{metric}.png')
     plt.show(block=False)
-    plt.pause(2)  # Display the plot for 2 seconds
+    plt.pause(1)  # Display the plot for 1 seconds
     plt.close()  # Close the plot and continue to the next metric    
     
-    print(f"Plot saved as trend_analysis_{metric}.png")
+    print(f"Plot saved as performance_results/trend_analysis_{metric}.png")
 
 if __name__ == "__main__":
     historical_csv = "dog-registration/test/historical_performance_data.csv"

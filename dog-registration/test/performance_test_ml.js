@@ -110,8 +110,9 @@ function convertToCSV(data) {
         return 'No http_req_duration data available';
     }
 
-    const header = 'avg,min,med,max,p(90),p(95)';
+    const header = 'timestemp,avg,min,med,max,p(90),p(95)';
     const values = [
+        new Date().toISOString(),
         metric.values.avg,
         metric.values.min,
         metric.values.med,
@@ -129,7 +130,7 @@ function convertToCSV(data) {
 
 export function handleSummary(data) {
     return {
-        'http_req_duration.csv': convertToCSV(data),
+        'dog-registration/test/http_req_duration.csv': convertToCSV(data),
     };
 }
 
