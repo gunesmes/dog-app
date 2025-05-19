@@ -110,7 +110,7 @@ function convertToCSV(data) {
         return 'No http_req_duration data available';
     }
 
-    const header = 'timestemp,avg,min,med,max,p(90),p(95)';
+    const header = 'timestamp,avg,min,med,max,p(90),p(95)';
     const values = [
         new Date().toISOString(),
         metric.values.avg,

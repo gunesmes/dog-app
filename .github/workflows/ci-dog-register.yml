@@ -73,6 +73,10 @@ jobs:
       - name: Run performance tests
         run: |
           k6 run ./dog-registration/test/performance_test_ml.js
+      
+      - name: Show performance result
+        run: |
+          cat ./dog-registration/test/http_req_duration.csv
   
       - name: Upload test results
         uses: actions/upload-artifact@v4
