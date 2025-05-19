@@ -74,26 +74,58 @@ jobs:
         run: |
           cd ./dog-registration/test
           k6 run performance_test_ml.js
-      
-      - name: Upload performance test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: performance-test-results
-          path: ./dog-registration/test/summary.csv
-          compression-level: 9
   
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: ./dog-registration/test/http_req_duration.csv
+              
   evaluate-performance-test:
     name: 'Evaluate Performance Test - registration'
     runs-on: ubuntu-latest
     needs: performance-test
     steps:
-      - name: Sleep for now
-        run: sleep 2
-    
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Python 3.10.8
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3.10
+          python3.10 --version
+
+      - name: Install pip
+        run: |
+          sudo apt-get install python3-pip
+          pip3 --version
+
+      - name: Install Required Python packages
+        run: |
+          pip3 install -r requirements.txt
+          
+      - name: Download test results
+        uses: actions/download-artifact@v3
+        with:
+          name: performance-results
+          path: ./dog-registration/test
+      
+      - name: Analyze anomaly
+        run: |
+          python3.10 analyze_anomaly_with_ml.py
+
+      - name: Analyze regression
+        run: |
+          python3.10 analyze_regression_with_ml.py
+
+      - name: Analyze trend
+        run: |
+          python3.10 analyze_trend_with_ml.py
+
   deploy:
     name: 'Deploy - registration'
     runs-on: ubuntu-latest
-    needs: [call-build-test, contract-test, performance-test]
+    needs: [call-build-test, contract-test, performance-test, evaluate-performance-test]
     steps:
       - name: Sleep for now
         run: sleep 2

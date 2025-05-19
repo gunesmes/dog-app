@@ -175,7 +175,7 @@ def plot_regression_analysis(results_all_metrics, historical_csv, new_data_csv):
     import os
     
     # Create directory for plots
-    os.makedirs('regression_analysis_plots', exist_ok=True)
+    os.makedirs('analyze_regression', exist_ok=True)
     
     # Read data
     historical_df = pd.read_csv(historical_csv)
@@ -210,7 +210,7 @@ def plot_regression_analysis(results_all_metrics, historical_csv, new_data_csv):
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
-        plt.savefig(f'regression_analysis_plots/{metric}_distribution.png')
+        plt.savefig(f'analyze_regression/{metric}_distribution.png')
         plt.close()
         
         # 2. Time series plot with equally spaced points (maintaining original order)
@@ -256,10 +256,10 @@ def plot_regression_analysis(results_all_metrics, historical_csv, new_data_csv):
         plt.grid(True, alpha=0.3)
         plt.legend()
         plt.tight_layout()
-        plt.savefig(f'regression_analysis_plots/{metric}_time_series.png')
+        plt.savefig(f'analyze_regression/{metric}_time_series.png')
         plt.close()
     
-    print("Regression analysis plots saved to 'regression_analysis_plots/' directory")
+    print("Regression analysis plots saved to 'analyze_regression/' directory")
 
 # Example usage
 historical_csv = "dog-registration/test/historical_performance_data.csv" 

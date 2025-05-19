@@ -267,14 +267,14 @@ def plot_trend_with_current(historical_csv, current_csv, metric):
              bbox=dict(facecolor=box_color, alpha=0.5, pad=10, boxstyle='round'))
     
     # Make directory if it doesn't exist
-    os.makedirs('performance_results', exist_ok=True)
+    os.makedirs('analyze_trend', exist_ok=True)
     
-    plt.savefig(f'performance_results/trend_analysis_{metric}.png')
+    plt.savefig(f'analyze_trend/trend_analysis_{metric}.png')
     plt.show(block=False)
     plt.pause(1)  # Display the plot for 1 seconds
     plt.close()  # Close the plot and continue to the next metric    
     
-    print(f"Plot saved as performance_results/trend_analysis_{metric}.png")
+    print(f"Plot saved as analyze_trend/trend_analysis_{metric}.png")
 
 if __name__ == "__main__":
     historical_csv = "dog-registration/test/historical_performance_data.csv"
