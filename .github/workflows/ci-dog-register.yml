@@ -106,7 +106,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: performance-results
-          path: ./dog-registration/test
+          path: .
+      
+      - name: Unzip test results
+        run: |
+          mkdir -p ./dog-registration/test
+          tar -xvf performance-results.zip -C ./dog-registration/test/
       
       - name: Analyze anomaly
         run: |
