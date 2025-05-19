@@ -110,8 +110,10 @@ jobs:
       
       - name: Unzip test results
         run: |
-          cd ./dog-registration/test/
-          tar -xvf performance-results.zip 
+          ls -lrt
+          cd ./dog-registration/test
+          ls -lrt
+          tar -xvf performance-results.zip .
       
       - name: Analyze anomaly
         run: |
