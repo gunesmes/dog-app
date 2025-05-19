@@ -110,8 +110,11 @@ jobs:
       
       - name: Unzip test results
         run: |
+          ls -lrt /home/runner/work/dog-app/dog-app/dog-registration/test
+          pwd
           ls -lrt
           cd ./dog-registration/test
+          pwd
           ls -lrt
           tar -xvf performance-results.zip .
       
