@@ -119,6 +119,13 @@ jobs:
       - name: Analyze trend
         run: |
           python3.10 analyze_trend_with_ml.py
+      
+      - name: Upload analysis results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-analysis-results
+          path: analyze_anomaly, analyze_regression, analyze_trend
+
 
   deploy:
     name: 'Deploy - registration'

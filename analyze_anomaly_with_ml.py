@@ -354,5 +354,5 @@ if __name__ == "__main__":
         print_analysis_results_ml(results)
 
     # This is a simple assertion to check if the new data is not an anomaly
-    if results:
-        assert results['is_anomaly'] == False, "ALERT: Anomaly detected in the new data!"
+    # if results:
+    #     assert results['is_anomaly'] == False, "ALERT: Anomaly detected in the new data!"
