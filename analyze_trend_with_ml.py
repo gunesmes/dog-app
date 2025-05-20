@@ -287,4 +287,4 @@ if __name__ == "__main__":
         plot_trend_with_current(historical_csv, current_csv, metric)
 
     # assert all metrics are within confidence intervals
-    # assert all(data['is_within_confidence_interval'] for data in results.values()), "Some metrics are outside confidence intervals!"
+    assert all(data['is_within_confidence_interval'] for data in results.values()), "Some metrics are outside confidence intervals!"
