@@ -84,7 +84,7 @@ jobs:
           name: performance-results
           path: ./dog-registration/test/http_req_duration.csv
               
-  evaluate-performance-test:
+  evaluate-anomaly:
     name: 'Evaluate Performance Test - registration'
     runs-on: ubuntu-latest
     needs: performance-test
@@ -127,13 +127,122 @@ jobs:
       - name: Upload analysis results
         uses: actions/upload-artifact@v4
         with:
-          name: performance-analysis-results
-          path: ./plots/
+          name: analyze-anomaly-results
+          path: ./plots/analyze_anomaly/
+
+  evaluate-regression:
+    name: 'Evaluate Performance Test - registration'
+    runs-on: ubuntu-latest
+    needs: performance-test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.8'
+
+      - name: Install pip
+        run: |
+          sudo apt-get install python3-pip
+          pip3 --version
+
+      - name: Install Required Python packages
+        run: |
+          pip3 install -r requirements.txt
+          
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: performance-results
+          path: ./dog-registration/test/
+                
+      - name: Analyze regression
+        run: |
+          python3.10 analyze_regression_with_ml.py
+
+      - name: Upload analysis results
+        uses: actions/upload-artifact@v4
+        with:
+          name: analyze-regression-results
+          path: ./plots/analyze_regression/
+
+  evaluate-trend:
+    name: 'Evaluate Performance Test - registration'
+    runs-on: ubuntu-latest
+    needs: performance-test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.8'
+
+      - name: Install pip
+        run: |
+          sudo apt-get install python3-pip
+          pip3 --version
+
+      - name: Install Required Python packages
+        run: |
+          pip3 install -r requirements.txt
+          
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: performance-results
+          path: ./dog-registration/test/
+                
+      - name: Analyze trend
+        run: |
+          python3.10 analyze_trend_with_ml.py
+      
+      - name: Upload analysis results
+        uses: actions/upload-artifact@v4
+        with:
+          name: analyze-trend-results
+          path: ./plots/analyze_trend/
+
+  collect-test-results:
+    name: 'Collect Performance Test - registration'
+    runs-on: ubuntu-latest
+    needs: [evaluate-anomaly, evaluate-regression, evaluate-trend]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Download anomaly results
+        uses: actions/download-artifact@v4
+        with:
+          name: analyze-anomaly-results
+          path: ./plots/analyze_anomaly/
+      
+      - name: Download regression results
+        uses: actions/download-artifact@v4
+        with:
+          name: analyze-regression-results
+          path: ./plots/analyze_regression/
+    
+      - name: Download trend results
+        uses: actions/download-artifact@v4
+        with:
+          name: analyze-trend-results
+          path: ./plots/analyze_trend/
+
+      - name: Upload all results
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-analyze-results
+          path: |
+            ./plots/
 
   deploy:
     name: 'Deploy - registration'
     runs-on: ubuntu-latest
-    needs: [call-build-test, contract-test, performance-test, evaluate-performance-test]
+    needs: [evaluate-anomaly, evaluate-regression, evaluate-trend]
     steps:
       - name: Sleep for now
         run: sleep 2
