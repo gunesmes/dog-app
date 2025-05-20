@@ -1,6 +1,4 @@
 #!/bin/bash
-pwd
-ls -l
 
 # Check if http_req_duration.csv exists
 if [ ! -f "http_req_duration.csv" ]; then
