@@ -82,8 +82,7 @@ jobs:
       
       - name: Run performance tests
         run: |
-          cd ./dog-registration/test
-          bash run_perf_test-data.sh
+          bash ./dog-registration/test/run_perf_test-data.sh
       
       - name: Upload performance test results
         uses: actions/upload-artifact@v4
