@@ -22,10 +22,10 @@ if [ -z "$values" ]; then
 fi
 
 # Create epoch timestamp
-timestamp=$(date +%s)
+timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
 
 # Append the values to summary.csv
-echo "$timestamp,$values" >> summary.csv
+echo "$timestamp,$values" >> dog-registration/test/summary.csv
 
 echo "Successfully appended data to summary.csv"
 

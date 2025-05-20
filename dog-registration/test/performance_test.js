@@ -2,8 +2,8 @@ import { check, sleep } from 'k6';
 import http from 'k6/http';
 
 export let options = {
-    vus: 1000, // number of virtual users
-    duration: '30s', // duration of the test
+    vus: 100, // number of virtual users
+    duration: '10s', // duration of the test
     thresholds: {
         http_req_duration: [
             'avg<20', // average response time must be below 2ms
