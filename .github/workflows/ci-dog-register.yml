@@ -210,6 +210,7 @@ jobs:
     name: 'Collect Performance Test - registration'
     runs-on: ubuntu-latest
     needs: [evaluate-anomaly, evaluate-regression, evaluate-trend]
+    if: always()
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
