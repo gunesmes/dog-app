@@ -21,11 +21,8 @@ if [ -z "$values" ]; then
   exit 1
 fi
 
-# Create epoch timestamp
-timestamp=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
-
 # Append the values to summary.csv
-echo "$timestamp,$values" >> summary.csv
+echo "$values" >> summary.csv
 
 echo "Successfully appended data to summary.csv"
 
