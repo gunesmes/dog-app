@@ -267,12 +267,12 @@ def plot_trend_with_current(historical_csv, current_csv, metric):
              bbox=dict(facecolor=box_color, alpha=0.5, pad=10, boxstyle='round'))
     
     # Make directory if it doesn't exist
-    os.makedirs('analyze_trend', exist_ok=True)
+    os.makedirs('plots/analyze_trend', exist_ok=True)
     
-    plt.savefig(f'analyze_trend/trend_analysis_{metric}.png')
+    plt.savefig(f'plots/analyze_trend/trend_analysis_{metric}.png')
     plt.close()
     
-    print(f"Plot saved as analyze_trend/trend_analysis_{metric}.png")
+    print(f"Plot saved as plots/analyze_trend/trend_analysis_{metric}.png")
 
 if __name__ == "__main__":
     historical_csv = "dog-registration/test/historical_performance_data.csv"

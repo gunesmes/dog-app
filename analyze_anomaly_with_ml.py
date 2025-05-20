@@ -89,7 +89,7 @@ def plot_anomaly_detection(results, historical_csv, new_data_csv):
         new_data_csv (str): Path to the new data CSV file.
     """
     # Create directory for plots
-    os.makedirs('analyze_anomaly', exist_ok=True)
+    os.makedirs('plots/analyze_anomaly', exist_ok=True)
     
     # Extract data from results
     historical_data = results["historical_data"]
@@ -109,7 +109,7 @@ def plot_anomaly_detection(results, historical_csv, new_data_csv):
     plt.xlabel('Anomaly Score (higher = more normal)')
     plt.ylabel('Frequency')
     plt.legend()
-    plt.savefig('analyze_anomaly/anomaly_score_distribution.png')
+    plt.savefig('plots/analyze_anomaly/anomaly_score_distribution.png')
     plt.close()
 
     # 2. Principal Component Analysis for 2D visualization
@@ -134,7 +134,7 @@ def plot_anomaly_detection(results, historical_csv, new_data_csv):
     plt.title('PCA Projection of Performance Data with Anomaly Detection')
     plt.xlabel('Principal Component 1')
     plt.ylabel('Principal Component 2')
-    plt.savefig('analyze_anomaly/pca_visualization.png')
+    plt.savefig('plots/analyze_anomaly/pca_visualization.png')
     plt.close()
 
     # 3. Feature correlation with anomaly scores visualization
@@ -152,7 +152,7 @@ def plot_anomaly_detection(results, historical_csv, new_data_csv):
     plt.title('Feature Correlation with Anomaly Scores')
     plt.xlabel('Absolute Correlation')
     plt.tight_layout()
-    plt.savefig('analyze_anomaly/feature_correlation.png')
+    plt.savefig('plots/analyze_anomaly/feature_correlation.png')
     plt.close()
 
     # 4. Parallel Coordinates Plot showing all metrics
@@ -226,7 +226,7 @@ def plot_anomaly_detection(results, historical_csv, new_data_csv):
     plt.title('Parallel Coordinates Plot of Top Features')
     plt.xticks(rotation=30)
     plt.tight_layout()
-    plt.savefig('analyze_anomaly/parallel_coordinates.png')
+    plt.savefig('plots/analyze_anomaly/parallel_coordinates.png')
     plt.close()
 
     # 5. Anomaly metrics comparison
@@ -273,7 +273,7 @@ def plot_anomaly_detection(results, historical_csv, new_data_csv):
 
     plt.suptitle('Key Metrics Distribution with Current Value', fontsize=16)
     plt.tight_layout(rect=[0, 0, 1, 0.92])  # Adjust for suptitle and annotation
-    plt.savefig('analyze_anomaly/metrics_comparison.png')
+    plt.savefig('plots/analyze_anomaly/metrics_comparison.png')
     plt.close()
 
     # 6. Time series plot (if timestamp information is available)
@@ -311,13 +311,13 @@ def plot_anomaly_detection(results, historical_csv, new_data_csv):
         plt.xlabel('Timestamp')
         plt.suptitle('Time Series Analysis of Key Metrics', fontsize=16)
         plt.tight_layout()
-        plt.savefig('analyze_anomaly/time_series.png')
+        plt.savefig('plots/analyze_anomaly/time_series.png')
         plt.close()
             
     except Exception as e:
         print(f"Couldn't create time series plot: {e}")
 
-    print("Anomaly detection plots saved to 'analyze_anomaly/' directory")
+    print("Anomaly detection plots saved to 'plots/analyze_anomaly/' directory")
 
 
 def print_analysis_results_ml(results):
