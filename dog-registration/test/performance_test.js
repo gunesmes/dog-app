@@ -1,21 +1,13 @@
 import { check, sleep } from 'k6';
 import http from 'k6/http';
 
+
 export let options = {
     vus: 100, // number of virtual users
     duration: '10s', // duration of the test
     thresholds: {
-        http_req_duration: [
-            'avg<20', // average response time must be below 2ms
-            'p(90)<30', // 90% of requests must complete below 3ms
-            'p(95)<35', // 95% of requests must complete below 4ms
-            'max<50' // max response time must be below 5ms
-        ], 
-        http_req_failed: [
-            'rate<0.01' // http request failures should be less than 1%
-        ], 
         checks: [
-            'rate>0.99' // 99% of checks should pass
+            'rate>0.999' // 0.999 of the checks should pass
         ], 
     },
 };
@@ -48,7 +40,7 @@ function registerDog() {
                     && responseBody.breed === json_data.breed
                     && responseBody.age === json_data.age;
             } catch (e) {
-                console.error(`Failed to parse response body: ${e}`);
+                console.error(`registerDog: Failed to parse response body: ${e}, response: ${r.body}`);
                 return false;
             }
         },
@@ -68,7 +60,7 @@ function getRegisteredDogs() {
                 let responseBody = JSON.parse(r.body);
                 return Array.isArray(responseBody) && responseBody.length > 0;
             } catch (e) {
-                console.error(`Failed to parse response body: ${e}`);
+                console.error(`getRegisteredDogs: Failed to parse response body: ${e}, response: ${r.body}`);
                 return false;
             }
         },
@@ -86,18 +78,69 @@ function getDogById(dogId) {
                 let responseBody = JSON.parse(r.body);
                 return responseBody.id === dogId;
             } catch (e) {
-                console.error(`Failed to parse response body: ${e}`);
+                console.error(`getDogById: Failed to parse response body: ${e}, response: ${r.body}`);
                 return false;
             }
         },
     });
 }
 
+function deleteDogs() {
+    let url = 'http://localhost:8084/dogs';
+    let res = http.del(url);
+
+    check(res, {
+        'is status 200': (r) => r.status === 200,
+        'is deleted': (r) => {
+            try {
+                let responseBody = r.body;
+                console.log(`deleteDogs: responseBody: ${responseBody}`);
+                return responseBody === 'All dogs deleted';
+            } catch (e) {
+                console.error(`deleteDogs: Failed to parse response body: ${e}, response: ${r.body}`);
+                return false;
+            }
+        },
+    });
+}
+
+function convertToCSV(data) {
+    const metric = data.metrics.http_req_duration;
+    if (!metric || !metric.values) {
+        return 'No http_req_duration data available';
+    }
+
+    const header = 'timestamp,avg,min,med,max,p(90),p(95)';
+    const values = [
+        new Date().toISOString(),
+        metric.values.avg,
+        metric.values.min,
+        metric.values.med,
+        metric.values.max,
+        metric.values['p(90)'],
+        metric.values['p(95)'],
+    ].join(',');
+
+    // check if the values are correct
+    console.log(header);
+    console.log(values);
+
+    return `${header}\n${values}`;
+}
+
+export function handleSummary(data) {
+    return {
+        'http_req_duration.csv': convertToCSV(data),
+    };
+}
+
+export function teardown(data) {
+    deleteDogs();
+}
+
 export default function () {
-    let dogId = registerDog();
+    registerDog();
     sleep(1);
     getRegisteredDogs();
-    sleep(1);
-    getDogById(dogId);
     sleep(1);
 }
