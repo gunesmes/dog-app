@@ -15,7 +15,9 @@ on:
         description: 'Run performance tests'
         required: true
         default: 'true'
-
+  pull_request:
+    branches:
+      - main
 jobs:
   call-build-test:
     name: 'Unit Test - registration'
