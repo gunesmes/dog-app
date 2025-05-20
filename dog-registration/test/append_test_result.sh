@@ -1,19 +1,19 @@
 #!/bin/bash
 
 # Check if http_req_duration.csv exists
-if [ ! -f "http_req_duration.csv" ]; then
+if [ ! -f "dog-registration/test/http_req_duration.csv" ]; then
   echo "Error: http_req_duration.csv not found."
   exit 1
 fi
 
 # Check if summary.csv exists
-if [ ! -f "summary.csv" ]; then
+if [ ! -f "dog-registration/test/summary.csv" ]; then
   echo "Error: summary.csv not found."
   exit 1
 fi
 
 # Extract the second line (values) from http_req_duration.csv
-values=$(sed -n '2p' http_req_duration.csv)
+values=$(sed -n '2p' dog-registration/test/http_req_duration.csv)
 
 # Check if values are empty
 if [ -z "$values" ]; then
