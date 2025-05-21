@@ -80,6 +80,10 @@ def analyze_performance_regression(historical_csv, new_data_csv, target_metric='
         historical_df = pd.read_csv(historical_csv)
         historical_df = historical_df.drop(columns=['timestamp'])
 
+        # Read new data
+        new_df = pd.read_csv(new_data_csv)
+        new_df = new_df.drop(columns=['timestamp'])  # Drop timestamp column
+
         # Prepare data for regression
         X = historical_df.drop(columns=[target_metric])
         y = historical_df[target_metric]
@@ -100,10 +104,6 @@ def analyze_performance_regression(historical_csv, new_data_csv, target_metric='
         y_pred = model.predict(X_test_scaled)
         mse = mean_squared_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
-
-        # Read new data
-        new_df = pd.read_csv(new_data_csv)
-        new_df = new_df.drop(columns=['timestamp'])  # Drop timestamp column
 
         # Scale the new data
         new_scaled = scaler.transform(new_df.drop(columns=[target_metric]))
