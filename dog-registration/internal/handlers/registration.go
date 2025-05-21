@@ -42,8 +42,6 @@ func RegisterDog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	time.Sleep(50 * time.Millisecond)
-
 	registeredDogs[dog.ID] = dog
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(dog)
