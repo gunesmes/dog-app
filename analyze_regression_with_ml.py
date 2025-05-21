@@ -179,7 +179,7 @@ def print_analysis_results_regression(results):
     print(f"  Actual Value: {results['actual_value']:.2f}")
     print(f"  Difference: {results['difference']:.2f}")
     print(f"  Direction: {'Above prediction' if results['is_above'] else 'Below prediction'}")
-    print(f"  Acceptable Range: +{results['upper_threshold']:.2f}/-{results['lower_threshold']:.2f}")
+    print(f"  Acceptable Range: -{results['lower_threshold']:.2f} / +{results['upper_threshold']:.2f}")
     print(f"  Mean Squared Error (MSE): {results['mse']:.2f}")
     print(f"  R-squared (R2): {results['r2']:.2f}")
     print(f"  Is Satisfied: {results['is_satisfied']}")
