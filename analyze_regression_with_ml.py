@@ -132,10 +132,10 @@ def analyze_performance_regression(historical_csv, new_data_csv, target_metric='
         # Check if the result is satisfied using asymmetric thresholds
         if is_above:
             # For values above prediction, use the full threshold
-            is_satisfied = (actual_value - predicted_value) <= upper_threshold
+            is_satisfied = difference <= upper_threshold
         else:
             # For values below prediction, use the tighter threshold
-            is_satisfied = (predicted_value - actual_value) <= lower_threshold
+            is_satisfied = difference <= abs(lower_threshold)
 
         # Get feature importance
         feature_importance = {}
