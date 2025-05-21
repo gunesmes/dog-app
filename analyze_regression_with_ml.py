@@ -60,9 +60,10 @@ def calculate_threshold(historical_csv, target_metric='avg'):
         print(f"An error occurred: {e}")
         return None
 
-def analyze_performance_regression(historical_csv, new_data_csv, target_metric='avg', difference_threshold=None):
+def analyze_performance_regression(historical_csv, new_data_csv, target_metric='avg', difference_threshold=None, lower_threshold_factor=0.5):
     """
     Analyzes performance test results using Random Forest Regression to predict a target metric.
+    Uses asymmetric thresholds to better detect suspiciously low values.
 
     Args:
         historical_csv (str): Path to the historical data CSV file.
@@ -70,6 +71,8 @@ def analyze_performance_regression(historical_csv, new_data_csv, target_metric='
         target_metric (str): The metric to predict (e.g., 'avg', 'max').
         difference_threshold (float): The maximum acceptable difference between predicted and actual values.
                                       If None, it will be calculated using historical data.
+        lower_threshold_factor (float): Factor to apply to the threshold for the lower bound (0-1).
+                                        Lower values create a tighter lower bound.
 
     Returns:
         dict: A dictionary containing the analysis results.
@@ -119,19 +122,41 @@ def analyze_performance_regression(historical_csv, new_data_csv, target_metric='
         if difference_threshold is None:
             difference_threshold = calculate_threshold(historical_csv, target_metric)
 
-        # Check if the result is satisfied
-        is_satisfied = difference <= difference_threshold
+        # Calculate asymmetric thresholds
+        upper_threshold = difference_threshold
+        lower_threshold = difference_threshold * lower_threshold_factor
 
-        # Store results
+        # Determine if we're above or below the prediction
+        is_above = actual_value >= predicted_value
+        
+        # Check if the result is satisfied using asymmetric thresholds
+        if is_above:
+            # For values above prediction, use the full threshold
+            is_satisfied = (actual_value - predicted_value) <= upper_threshold
+        else:
+            # For values below prediction, use the tighter threshold
+            is_satisfied = (predicted_value - actual_value) <= lower_threshold
+
+        # Get feature importance
+        feature_importance = {}
+        feature_names = X.columns
+        importances = model.feature_importances_
+        for name, importance in zip(feature_names, importances):
+            feature_importance[name] = importance
+
+        # Store results with asymmetric thresholds
         results = {
             "target_metric": target_metric,
             "predicted_value": predicted_value,
             "actual_value": actual_value,
             "difference": difference,
-            "difference_threshold": difference_threshold,
+            "upper_threshold": upper_threshold,
+            "lower_threshold": lower_threshold,
             "mse": mse,
             "r2": r2,
             "is_satisfied": is_satisfied,
+            "is_above": is_above,
+            "feature_importance": feature_importance
         }
 
         return results
@@ -152,8 +177,9 @@ def print_analysis_results_regression(results):
     print(f"\nPerformance Analysis Results (Random Forest Regression - {results['target_metric']}):")
     print(f"  Predicted Value: {results['predicted_value']:.2f}")
     print(f"  Actual Value: {results['actual_value']:.2f}")
-    print(f"   Difference: {results['difference']:.2f}")
-    print(f"  Difference Threshold: {results['difference_threshold']:.2f}")
+    print(f"  Difference: {results['difference']:.2f}")
+    print(f"  Direction: {'Above prediction' if results['is_above'] else 'Below prediction'}")
+    print(f"  Acceptable Range: +{results['upper_threshold']:.2f}/-{results['lower_threshold']:.2f}")
     print(f"  Mean Squared Error (MSE): {results['mse']:.2f}")
     print(f"  R-squared (R2): {results['r2']:.2f}")
     print(f"  Is Satisfied: {results['is_satisfied']}")
@@ -162,6 +188,7 @@ def plot_regression_analysis(results_all_metrics, historical_csv, new_data_csv):
     """
     Creates distribution and time series visualizations for regression analysis results.
     Uses equally spaced points for time series while maintaining original data order.
+    Shows asymmetric thresholds.
     
     Args:
         results_all_metrics (dict): Dictionary with results for each metric
@@ -197,11 +224,12 @@ def plot_regression_analysis(results_all_metrics, historical_csv, new_data_csv):
                    linestyle='-', linewidth=2,
                    label=f'Actual: {results["actual_value"]:.2f}')
         
+        # Display asymmetric threshold range
         plt.axvspan(
-            results['predicted_value'] - results['difference_threshold'], 
-            results['predicted_value'] + results['difference_threshold'], 
+            results['predicted_value'] - results['lower_threshold'], 
+            results['predicted_value'] + results['upper_threshold'], 
             alpha=0.2, color='green', 
-            label=f'Acceptable Range (±{results["difference_threshold"]:.2f})'
+            label=f'Acceptable Range (+{results["upper_threshold"]:.2f}/-{results["lower_threshold"]:.2f})'
         )
         
         plt.title(f'Distribution for {metric} Metric')
@@ -235,18 +263,20 @@ def plot_regression_analysis(results_all_metrics, historical_csv, new_data_csv):
         plt.scatter(x_new, results['predicted_value'], 
                   color='blue', marker='X', s=100, label='Predicted Value')
         
-        # Add threshold range around the prediction at the new point
+        # Add asymmetric threshold range around the prediction at the new point
         plt.fill_between(
             [x_new - 0.5, x_new + 0.5],
-            [results['predicted_value'] - results['difference_threshold']]*2,
-            [results['predicted_value'] + results['difference_threshold']]*2,
-            color='green', alpha=0.2, label='Acceptable Range'
+            [results['predicted_value'] - results['lower_threshold']]*2,
+            [results['predicted_value'] + results['upper_threshold']]*2,
+            color='green', alpha=0.2, 
+            label=f'Acceptable Range (+{results["upper_threshold"]:.2f}/-{results["lower_threshold"]:.2f})'
         )
         
-        # Extend acceptable range as a horizontal band across the plot
-        plt.axhspan(
-            results['predicted_value'] - results['difference_threshold'],
-            results['predicted_value'] + results['difference_threshold'],
+        # Extend asymmetric acceptable range as a horizontal band across the plot
+        plt.fill_between(
+            plt.xlim(),
+            [results['predicted_value'] - results['lower_threshold']]*2,
+            [results['predicted_value'] + results['upper_threshold']]*2,
             alpha=0.1, color='green', label='_nolegend_'  # Don't duplicate in legend
         )
         
@@ -262,18 +292,30 @@ def plot_regression_analysis(results_all_metrics, historical_csv, new_data_csv):
     print("Regression analysis plots saved to 'plots/analyze_regression/' directory")
 
 # Example usage
-historical_csv = "dog-registration/test/historical_performance_data.csv" 
-new_data_csv = "dog-registration/test/http_req_duration.csv" 
-metrics = ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)']
-results_all_metrics = {}
+if __name__ == "__main__":
+    historical_csv = "dog-registration/test/historical_performance_data.csv" 
+    new_data_csv = "dog-registration/test/http_req_duration.csv" 
+    metrics = ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)']
+    results_all_metrics = {}
 
-for metric in metrics:
-    results = analyze_performance_regression(historical_csv, new_data_csv, metric, difference_threshold=None)
-    results_all_metrics[metric] = results
-    if results:
-        print_analysis_results_regression(results)
+    # You can adjust the lower_threshold_factor to control how strict the lower bound is
+    # 0.5 means the lower bound is twice as strict as the upper bound
+    lower_threshold_factor = 0.5
 
-# Add this after your existing code:
-plot_regression_analysis(results_all_metrics, historical_csv, new_data_csv)
+    for metric in metrics:
+        results = analyze_performance_regression(
+            historical_csv, 
+            new_data_csv, 
+            metric, 
+            difference_threshold=None,
+            lower_threshold_factor=lower_threshold_factor
+        )
+        results_all_metrics[metric] = results
+        if results:
+            print_analysis_results_regression(results)
 
-assert all([result['is_satisfied'] for result in results_all_metrics.values()]), "Some metrics are not satisfied."
+    # Generate plots
+    plot_regression_analysis(results_all_metrics, historical_csv, new_data_csv)
+
+    # Final assertion to check if all metrics satisfy requirements
+    assert all([result['is_satisfied'] for result in results_all_metrics.values()]), "Some metrics are not satisfied."
