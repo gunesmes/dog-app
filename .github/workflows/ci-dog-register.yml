@@ -115,14 +115,6 @@ jobs:
       - name: Analyze anomaly
         run: |
           python3.10 analyze_anomaly_with_ml.py
-
-      - name: Analyze regression
-        run: |
-          python3.10 analyze_regression_with_ml.py
-
-      - name: Analyze trend
-        run: |
-          python3.10 analyze_trend_with_ml.py
       
       - name: Upload analysis results
         uses: actions/upload-artifact@v4
