@@ -85,7 +85,7 @@ jobs:
           path: ./dog-registration/test/http_req_duration.csv
               
   evaluate-anomaly:
-    name: 'Evaluate Performance Test - registration'
+    name: 'Anomaly Detection - registration'
     runs-on: ubuntu-latest
     needs: performance-test
     steps:
@@ -132,7 +132,7 @@ jobs:
           path: ./plots/analyze_anomaly/
 
   evaluate-regression:
-    name: 'Evaluate Performance Test - registration'
+    name: 'Regression Analysis - registration'
     runs-on: ubuntu-latest
     needs: performance-test
     steps:
@@ -171,7 +171,7 @@ jobs:
           path: ./plots/analyze_regression/
 
   evaluate-trend:
-    name: 'Evaluate Performance Test - registration'
+    name: 'Trend Analysis - registration'
     runs-on: ubuntu-latest
     needs: performance-test
     steps:

@@ -129,11 +129,29 @@ def print_analysis_results(results):
 
 def plot_trend_with_current(historical_csv, current_csv, metric):
     """Plots the historical trend with prediction and current value."""
-    historical_df = pd.read_csv(historical_csv, parse_dates=['timestamp'])
-    current_df = pd.read_csv(current_csv, parse_dates=['timestamp'])
+    # Load data
+    historical_df = pd.read_csv(historical_csv)
+    current_df = pd.read_csv(current_csv)
     
-    # Sort historical data by timestamp
-    historical_df = historical_df.sort_values('timestamp')
+    # Explicitly convert timestamp to datetime if needed
+    try:
+        if 'timestamp' in historical_df.columns:
+            # Try to convert timestamp to datetime if it's not already
+            if not pd.api.types.is_datetime64_any_dtype(historical_df['timestamp']):
+                historical_df['timestamp'] = pd.to_datetime(historical_df['timestamp'], errors='coerce')
+        
+        if 'timestamp' in current_df.columns:
+            if not pd.api.types.is_datetime64_any_dtype(current_df['timestamp']):
+                current_df['timestamp'] = pd.to_datetime(current_df['timestamp'], errors='coerce')
+    except Exception as e:
+        print(f"Warning: Could not convert timestamps to datetime: {e}")
+        # Create a dummy timestamp column if needed for annotations
+        historical_df['_dummy_index'] = [f"Run {i+1}" for i in range(len(historical_df))]
+        current_df['_dummy_index'] = [f"Current" for i in range(len(current_df))]
+    
+    # Sort historical data by timestamp if possible
+    if 'timestamp' in historical_df.columns and pd.api.types.is_datetime64_any_dtype(historical_df['timestamp']):
+        historical_df = historical_df.sort_values('timestamp')
     
     # Create sequential indices (equally spaced) for historical data
     X = np.arange(len(historical_df)).reshape(-1, 1)
@@ -216,27 +234,48 @@ def plot_trend_with_current(historical_csv, current_csv, metric):
     plt.legend()
     plt.grid(True, alpha=0.3)
     
-    # Add annotations with actual dates at some points
-    test_dates = historical_df['timestamp'].dt.strftime('%Y-%m-%d').tolist()
-    
-    # Add date annotations for first, last, and some intermediate points
-    indices_to_annotate = [0, len(test_dates)//2, len(test_dates)-1]
-    for idx in indices_to_annotate:
-        plt.annotate(test_dates[idx], 
-                    xy=(idx, historical_df[metric].iloc[idx]),
-                    xytext=(0, 10),
-                    textcoords='offset points',
-                    ha='center',
-                    fontsize=8)
-    
-    # Annotate current test date
-    current_date = current_df['timestamp'].iloc[0].strftime('%Y-%m-%d')
-    plt.annotate(current_date, 
-                xy=(current_x, current_value),
-                xytext=(0, -15),
-                textcoords='offset points',
-                ha='center',
-                fontsize=8)
+    # Add annotations with dates - modified to handle non-datetime timestamps
+    try:
+        if 'timestamp' in historical_df.columns and pd.api.types.is_datetime64_any_dtype(historical_df['timestamp']):
+            test_dates = historical_df['timestamp'].dt.strftime('%Y-%m-%d').tolist()
+            
+            # Add date annotations for first, last, and some intermediate points
+            indices_to_annotate = [0, len(test_dates)//2, len(test_dates)-1]
+            for idx in indices_to_annotate:
+                plt.annotate(test_dates[idx], 
+                            xy=(idx, historical_df[metric].iloc[idx]),
+                            xytext=(0, 10),
+                            textcoords='offset points',
+                            ha='center',
+                            fontsize=8)
+            
+            # Annotate current test date
+            if pd.api.types.is_datetime64_any_dtype(current_df['timestamp']):
+                current_date = current_df['timestamp'].iloc[0].strftime('%Y-%m-%d')
+                plt.annotate(current_date, 
+                            xy=(current_x, current_value),
+                            xytext=(0, -15),
+                            textcoords='offset points',
+                            ha='center',
+                            fontsize=8)
+        else:
+            # Use run numbers instead of dates if timestamps aren't available
+            for idx in [0, len(historical_df)//2, len(historical_df)-1]:
+                plt.annotate(f"Run {idx+1}", 
+                            xy=(idx, historical_df[metric].iloc[idx]),
+                            xytext=(0, 10),
+                            textcoords='offset points',
+                            ha='center',
+                            fontsize=8)
+            
+            plt.annotate("Current", 
+                        xy=(current_x, current_value),
+                        xytext=(0, -15),
+                        textcoords='offset points',
+                        ha='center',
+                        fontsize=8)
+    except Exception as e:
+        print(f"Warning: Could not add date annotations: {e}")
     
     # Add confidence interval info box
     info_text = f"Predicted: {current_pred[0]:.2f}\nActual: {current_value:.2f}\nCI: [{current_ci[0]:.2f}, {current_ci[1]:.2f}]"
