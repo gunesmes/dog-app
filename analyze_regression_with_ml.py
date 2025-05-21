@@ -60,7 +60,7 @@ def calculate_threshold(historical_csv, target_metric='avg'):
         print(f"An error occurred: {e}")
         return None
 
-def analyze_performance_regression(historical_csv, new_data_csv, target_metric='avg', difference_threshold=None, lower_threshold_factor=2):
+def analyze_performance_regression(historical_csv, new_data_csv, target_metric='avg', difference_threshold=None, lower_threshold_factor=0.5):
     """
     Analyzes performance test results using Random Forest Regression to predict a target metric.
     Uses asymmetric thresholds to better detect suspiciously low values.
@@ -299,8 +299,8 @@ if __name__ == "__main__":
     results_all_metrics = {}
 
     # You can adjust the lower_threshold_factor to control how strict the lower bound is
-    # 0.5 means the lower bound is twice as strict as the upper bound
-    lower_threshold_factor = 0.5
+    # 2 means the lower bound is twice as strict as the upper bound
+    lower_threshold_factor = 2
 
     for metric in metrics:
         results = analyze_performance_regression(
