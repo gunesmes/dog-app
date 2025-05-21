@@ -42,6 +42,10 @@ func RegisterDog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Simulate some processing time for negative test case
+	// This is just for demonstration purposes and should be removed in production code
+	time.Sleep(200 * time.Microsecond)
+
 	registeredDogs[dog.ID] = dog
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(dog)
