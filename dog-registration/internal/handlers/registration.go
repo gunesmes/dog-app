@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
-	"time"
+	// "time"
 )
 
 type Dog struct {
@@ -44,7 +44,7 @@ func RegisterDog(w http.ResponseWriter, r *http.Request) {
 
 	// Simulate some processing time for negative test case with 200 microseconds
 	// This is just for demonstration purposes and should be removed in production code
-	time.Sleep(1 * time.Microsecond)
+	// time.Sleep(1 * time.Microsecond)
 
 	registeredDogs[dog.ID] = dog
 	w.WriteHeader(http.StatusCreated)
