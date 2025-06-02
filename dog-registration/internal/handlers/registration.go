@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 	"sync"
-
-	"github.com/gorilla/mux"
+	// "time"
 )
 
 type Dog struct {
@@ -41,6 +41,10 @@ func RegisterDog(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "dog is already registered", http.StatusConflict)
 		return
 	}
+
+	// Simulate some processing time for negative test case with 200 microseconds
+	// This is just for demonstration purposes and should be removed in production code
+	// time.Sleep(1 * time.Microsecond)
 
 	registeredDogs[dog.ID] = dog
 	w.WriteHeader(http.StatusCreated)

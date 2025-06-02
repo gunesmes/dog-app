@@ -1,0 +1,84 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+.ipynb_checkpoints
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.venv
+venv/
+ENV/
+.env
+
+# Plots and visualization outputs
+anomaly_detection_plots/
+regression_analysis_plots/
+plots/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.svg
+
+# Data files
+# Uncomment if you want to ignore data files
+# *.csv
+# *.xlsx
+# *.json
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+.spyderproject
+.spyproject
+.ropeproject
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ML model files
+*.joblib
+*.pkl
+*.h5
+*.model
+*.pt
+*.pth
+*.weights
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Project specific
+dog-registration/test/output/
+dog-registration/test/reports/
+**/node_modules/
+**/dist/
+**/tmp/
